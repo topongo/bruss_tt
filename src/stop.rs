@@ -1,8 +1,8 @@
-use reqwest::Method;
-use serde::{Serialize,Deserialize,Deserializer};
+use serde::{Serialize,Deserialize};
 use crate::TTType;
 use crate::{client::Endpoint, TTClient, TTResult, VecEndpoint};
 use crate::area::AreaType;
+use crate::RequestOptions;
 
 #[derive(Serialize,Deserialize,Debug)]
 pub struct TTStop {
@@ -31,11 +31,5 @@ pub struct TTStop {
 impl TTType for TTStop {}
 
 impl Endpoint<Vec<TTStop>> for TTClient {}
-impl VecEndpoint<TTStop> for TTClient {
-    const ENDPOINT: &'static str = "/stops";
-
-    async fn request(&self) -> TTResult<Vec<TTStop>> {
-        <Self as Endpoint<Vec<TTStop>>>::inner(self.auth_req(Method::GET, <Self as VecEndpoint<TTStop>>::ENDPOINT), Option::<()>::None).await
-    }
-}
+impl_vec_endpoint!(TTStop, "/stops");
 

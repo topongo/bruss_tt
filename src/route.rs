@@ -1,7 +1,7 @@
 use crate::error::TTResult;
 use crate::client::{Endpoint,VecEndpoint,TTClient};
 use crate::TTType;
-use reqwest::Method;
+use crate::RequestOptions;
 use serde::{Serialize,Deserialize,Deserializer};
 
 #[derive(Serialize,Deserialize,Debug)]
@@ -30,11 +30,5 @@ fn parse_color<'de, D>(d: D) -> Result<String, D::Error> where D: Deserializer<'
 }
 
 impl Endpoint<Vec<TTRoute>> for TTClient {}
-impl VecEndpoint<TTRoute> for TTClient {
-    const ENDPOINT: &'static str = "/routes";
-
-    async fn request(&self) -> TTResult<Vec<TTRoute>> {
-        <Self as Endpoint<Vec<TTRoute>>>::inner(self.auth_req(Method::GET, <Self as VecEndpoint<TTRoute>>::ENDPOINT), Option::<()>::None).await
-    }
-}
+impl_vec_endpoint!(TTRoute, "/routes");
 

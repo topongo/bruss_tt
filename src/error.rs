@@ -1,22 +1,29 @@
 use std::error::Error;
 use std::fmt::{Debug, Display};
 
-use reqwest::Url;
+use crate::api_error::ApiError;
 
 #[derive(Debug)]
 pub enum TTError {
-    HttpError(String, Option<String>),
-    JsonError(String, Option<String>),
+    HttpError(String),
+    JsonError(String),
+    ApiError(ApiError)
 }
 
 impl From<reqwest::Error> for TTError {
     fn from(value: reqwest::Error) -> Self {
         if value.is_decode() {
-            TTError::JsonError(value.to_string(), value.url().map(Url::to_string))
+            TTError::JsonError(value.to_string())
         } else {
-            TTError::HttpError(value.to_string(), value.url().map(Url::to_string))
+            TTError::HttpError(value.to_string())
         }
     }
+}
+
+impl From<serde_json::Error> for TTError {
+     fn from(value: serde_json::Error) -> Self {
+         TTError::JsonError(value.to_string())
+     }
 }
 
 impl Error for TTError {}

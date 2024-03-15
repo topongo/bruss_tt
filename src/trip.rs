@@ -1,14 +1,12 @@
-use std::time::Instant;
-
-use reqwest::Method;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::Error;
-use chrono::{Local, NaiveDateTime, NaiveTime};
+use chrono::{NaiveDateTime, NaiveTime};
 
-use crate::client::Endpoint;
-use crate::{AreaType, TTClient, TTError, TTResult, TTRoute, TTType, VecEndpoint};
+use crate::client::{Endpoint,VecEndpoint};
+use crate::{AreaType, TTClient, TTResult, TTType};
+use crate::RequestOptions;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct TTTrip {
     #[serde(alias = "tripId")]
     pub id: String,
@@ -29,7 +27,7 @@ pub struct TTTrip {
 
 impl TTType for TTTrip {}
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct StopTime {
     #[serde(alias = "arrivalTime", deserialize_with = "deserialize_time")]
     pub arrival: NaiveTime,
@@ -54,7 +52,7 @@ fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> wher
     }
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 struct TripQuery {
     #[serde(rename = "routeId")]
     route_id: u16,
@@ -65,24 +63,6 @@ struct TripQuery {
     time: NaiveDateTime
 }
 
-impl Endpoint<Vec<TTTrip>> for TTClient {
-    async fn inner(request: reqwest::RequestBuilder, query: Option<Self::Query>) -> TTResult<Vec<TTTrip>> {
-        request
-            .query(&TripQuery { route_id: 396, ty: AreaType::U, limit: 1, time: Local::now().naive_local() })
-            .send()
-            .await?
-            .json()
-            .await
-            .map_err(TTError::from)
-    }
-}
-
-impl VecEndpoint<TTTrip> for TTClient {
-    const ENDPOINT: &'static str = "/trip_new";
-
-    async fn request(&self) -> TTResult<Vec<TTTrip>> {
-        <Self as Endpoint<Vec<TTTrip>>>::inner(self.auth_req(Method::GET, <Self as VecEndpoint<TTTrip>>::ENDPOINT), Option::<()>::None).await
-    }
-}
-
+impl Endpoint<Vec<TTTrip>> for TTClient {}
+impl_vec_endpoint!(TTTrip, "/trips_new");
 

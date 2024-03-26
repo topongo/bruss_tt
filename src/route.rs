@@ -1,7 +1,4 @@
-use crate::error::TTResult;
-use crate::client::{Endpoint,VecEndpoint,TTClient};
-use crate::TTType;
-use crate::RequestOptions;
+use crate::{TTEndpoint, TTType};
 use serde::{Serialize,Deserialize,Deserializer};
 
 #[derive(Serialize,Deserialize,Debug)]
@@ -22,13 +19,14 @@ pub struct TTRoute {
 
 impl TTType for TTRoute {}
 
+impl TTEndpoint for TTRoute {
+    const ENDPOINT: &'static str = "/routes";
+}
+
 fn parse_color<'de, D>(d: D) -> Result<String, D::Error> where D: Deserializer<'de> {
     Deserialize::deserialize(d)
         .map(|x: Option<_>| {
             x.unwrap_or("CCCCCC".to_string())
         })
 }
-
-impl Endpoint<Vec<TTRoute>> for TTClient {}
-impl_vec_endpoint!(TTRoute, "/routes");
 

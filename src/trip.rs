@@ -2,9 +2,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::Error;
 use chrono::{NaiveDateTime, NaiveTime};
 
-use crate::client::{Endpoint,VecEndpoint};
-use crate::{AreaType, TTClient, TTResult, TTType};
-use crate::RequestOptions;
+use crate::{AreaType,TTEndpoint,TTType};
 
 #[derive(Debug, Deserialize)]
 pub struct TTTrip {
@@ -27,6 +25,10 @@ pub struct TTTrip {
 
 impl TTType for TTTrip {}
 
+impl TTEndpoint for TTTrip {
+    const ENDPOINT: &'static str = "/trips_new";
+}
+
 #[derive(Debug, Deserialize)]
 pub struct StopTime {
     #[serde(alias = "arrivalTime", deserialize_with = "deserialize_time")]
@@ -38,8 +40,6 @@ pub struct StopTime {
     #[serde(alias = "stopId")]
     pub stop: u16,
 }
-
-impl TTType for StopTime {}
 
 fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> where D: Deserializer<'de> {
     let s = String::deserialize(deserializer)?;
@@ -53,16 +53,13 @@ fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> wher
 }
 
 #[derive(Debug, Serialize)]
-struct TripQuery {
+pub struct TripQuery {
     #[serde(rename = "routeId")]
-    route_id: u16,
+    pub route_id: u16,
     #[serde(rename = "type")]
-    ty: AreaType,
-    limit: u32,
+    pub ty: AreaType,
+    pub limit: u32,
     #[serde(rename = "refDateTime")]
-    time: NaiveDateTime
+    pub time: NaiveDateTime
 }
-
-impl Endpoint<Vec<TTTrip>> for TTClient {}
-impl_vec_endpoint!(TTTrip, "/trips_new");
 

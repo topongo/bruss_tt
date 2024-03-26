@@ -1,8 +1,6 @@
-use serde::{Serialize,Deserialize};
-use crate::TTType;
-use crate::{client::Endpoint, TTClient, TTResult, VecEndpoint};
+use serde::{Deserialize, Deserializer, Serialize};
+use crate::{TTEndpoint, TTType};
 use crate::area::AreaType;
-use crate::RequestOptions;
 
 #[derive(Serialize,Deserialize,Debug)]
 pub struct TTStop {
@@ -20,16 +18,26 @@ pub struct TTStop {
     pub altitude: i32,
     #[serde(alias = "stopName")]
     pub name: String,
-    pub street: String,
-    pub town: String,
+    pub street: Option<String>,
+    pub town: Option<String>,
     #[serde(rename = "type")]
     pub ty: AreaType,
-    #[serde(alias = "wheelchairBoarding")]
+    #[serde(alias = "wheelchairBoarding", deserialize_with = "deserialize_wheelchair_boarding")]
     pub wheelchair_boarding: bool
 }
 
 impl TTType for TTStop {}
 
-impl Endpoint<Vec<TTStop>> for TTClient {}
-impl_vec_endpoint!(TTStop, "/stops");
+impl TTEndpoint for TTStop {
+    const ENDPOINT: &'static str = "/stops";
+}
+
+fn deserialize_wheelchair_boarding<'de, D>(deserializer: D) -> Result<bool, D::Error> where D: Deserializer<'de> {
+    let d = u8::deserialize(deserializer)?;
+
+    Ok(match d {
+        1 => true,
+        _ => true
+    })
+} 
 

@@ -1,9 +1,6 @@
 use serde::{Deserialize,Serialize};
 
-use crate::client::{impl_vec_endpoint, Endpoint, TTClient, VecEndpoint};
-use crate::error::TTResult;
-use crate::TTType;
-use crate::RequestOptions;
+use crate::{TTEndpoint, TTType};
 
 #[derive(Deserialize, Debug)]
 pub struct TTArea {
@@ -17,16 +14,9 @@ pub struct TTArea {
 
 impl TTType for TTArea {}
 
-impl Endpoint<Vec<TTArea>> for TTClient {}
-impl_vec_endpoint!(TTArea, "/areas");
-
-// impl VecEndpoint<TTArea> for TTClient {
-//     const ENDPOINT: &'static str = "/areas";
-//
-//     async fn request(&self) -> TTResult<Vec<TTArea>> {
-//         <Self as Endpoint<Vec<TTArea>>>::decode(<Self as Endpoint<Vec<TTArea>>>::inner(self.auth_req(Method::GET, <Self as VecEndpoint<TTArea>>::ENDPOINT), Option::<()>::None).await?)
-//     }
-// }
+impl TTEndpoint for TTArea {
+    const ENDPOINT: &'static str = "/areas";
+}
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum AreaType {

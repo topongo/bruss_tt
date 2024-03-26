@@ -8,6 +8,15 @@ pub struct RequestOptions<Q: Serialize> {
     pub query: Option<Q>,
 }
 
+#[derive(Serialize)]
+pub struct DummyQuery {}
+
+impl RequestOptions<()> {
+    pub fn none() -> Option<RequestOptions<DummyQuery>> {
+        None
+    }
+}
+
 impl<Q: Serialize> RequestOptions<Q> {
     pub fn new() -> Self {
         Self { method: None, query: None }
@@ -20,5 +29,7 @@ impl<Q: Serialize> RequestOptions<Q> {
     pub fn method(self, method: Method) -> Self {
         Self { method: Some(method), ..self }
     }
+
+    
 }
 

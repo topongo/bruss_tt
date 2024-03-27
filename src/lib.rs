@@ -10,7 +10,7 @@ mod trip;
 mod api_error;
 mod request;
 
-pub use {area::TTArea, area::AreaType, route::TTRoute, stop::TTStop, trip::{TTTrip,TripQuery}};
+pub use {area::TTArea, area::AreaType, route::TTRoute, stop::TTStop, trip::{TTTrip,TripQuery,StopTime}};
 pub use client::TTClient;
 pub use error::{TTError,TTResult};
 pub use request::RequestOptions;

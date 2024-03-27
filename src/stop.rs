@@ -11,9 +11,9 @@ pub struct TTStop {
     #[serde(alias = "stopDesc")]
     pub description: String,
     #[serde(alias = "stopLat")]
-    pub lat: f32,
+    pub lat: f64,
     #[serde(alias = "stopLon")]
-    pub lng: f32,
+    pub lng: f64,
     #[serde(alias = "stopLevel")]
     pub altitude: i32,
     #[serde(alias = "stopName")]

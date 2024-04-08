@@ -18,9 +18,11 @@ pub struct TTTrip {
     #[serde(alias = "matricolaBus")]
     pub bus_id: Option<u16>,
     #[serde(alias = "routeId")]
-    pub route: i32,
+    pub route: u16,
     #[serde(alias = "stopTimes")]
-    pub stop_times: Vec<StopTime>
+    pub stop_times: Vec<StopTime>,
+    #[serde(alias = "type")]
+    pub ty: AreaType
 }
 
 impl TTType for TTTrip {}
@@ -41,10 +43,12 @@ pub struct StopTime {
     pub stop: u16,
 }
 
-fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> where D: Deserializer<'de> {
+pub fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> where D: Deserializer<'de> {
     let s = String::deserialize(deserializer)?;
     let sp: Vec<&str> = s.split(":").collect();
-    let (h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
+    let (mut h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
+
+    h = h % 24;
 
     match NaiveTime::from_hms_opt(h, m, s) {
         Some(n) => Ok(n),

@@ -18,7 +18,7 @@ impl TTEndpoint for TTArea {
     const ENDPOINT: &'static str = "/areas";
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Hash, Eq, Copy)]
 pub enum AreaType {
     #[serde(rename(serialize = "e"), alias = "e")]
     E,
@@ -28,4 +28,12 @@ pub enum AreaType {
 
 impl TTType for AreaType {}
 
+impl Into<u8> for AreaType {
+    fn into(self) -> u8 {
+        match self {
+            Self::E => b'e',
+            Self::U => b'u'
+        }
+    }
+}
 

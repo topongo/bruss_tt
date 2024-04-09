@@ -1,4 +1,4 @@
-use crate::{TTEndpoint, TTType};
+use crate::{AreaType, TTEndpoint, TTType};
 use serde::{Serialize,Deserialize,Deserializer};
 
 #[derive(Serialize,Deserialize,Debug)]
@@ -9,6 +9,8 @@ pub struct TTRoute {
     pub ty: u16,
     #[serde(alias="areaId")]
     pub area: u16,
+    #[serde(alias="type")]
+    pub area_ty: AreaType,
     #[serde(deserialize_with="parse_color",alias="routeColor")]
     pub color: String,
     #[serde(alias="routeLongName")]

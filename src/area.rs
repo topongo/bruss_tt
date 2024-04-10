@@ -37,6 +37,15 @@ impl Into<u8> for AreaType {
     }
 }
 
+impl Into<&'static str> for AreaType {
+    fn into(self) -> &'static str {
+        match self {
+            Self::E => "e",
+            Self::U => "u"
+        }
+    }
+}
+
 #[test]
 fn test_se() {
     let raw = r#"

@@ -22,7 +22,9 @@ pub struct TTTrip {
     #[serde(alias = "stopTimes")]
     pub stop_times: Vec<StopTime>,
     #[serde(alias = "type")]
-    pub ty: AreaType
+    pub ty: AreaType,
+    #[serde(alias = "tripHeadsign")]
+    pub headsign: String,
 }
 
 impl TTType for TTTrip {}

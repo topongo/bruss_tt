@@ -5,7 +5,7 @@ use crate::TTEndpoint;
 use reqwest::{Client, RequestBuilder, Method};
 use serde::Serialize;
 use serde_json::error::Category;
-use log::info;
+use log::{info,debug};
 
 pub struct TTClient {
     base_url: String,
@@ -30,9 +30,10 @@ impl TTClient {
     }
 
     pub async fn request_opt<O: TTEndpoint, Q: Serialize>(&self, options: Option<RequestOptions<Q>>) -> TTResult<Vec<O>> {
-        info!("creating request for endpoint \"{}\"", O::ENDPOINT);
+        debug!("creating request for endpoint \"{}\"", O::ENDPOINT);
         let r = self.build_request(O::ENDPOINT, options.unwrap_or(RequestOptions::new()));
-        info!("generated request: {:?}", r);
+        debug!("generated request: {:?}", r);
+        info!("requesting endpoint {}", O::ENDPOINT);
         let body = r 
             .send()
             .await?

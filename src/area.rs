@@ -37,3 +37,19 @@ impl Into<u8> for AreaType {
     }
 }
 
+#[test]
+fn test_se() {
+    let raw = r#"
+    {
+        "areaId": 23,
+        "areaDesc": "Urbano Trento",
+        "type": "U"
+    }        
+    "#;
+    
+    let data: TTArea = serde_json::from_str(raw).unwrap();
+    assert_eq!(data.ty, AreaType::U);
+    assert_eq!(data.label, "Urbano Trento");
+    assert_eq!(data.id, 23);
+}
+

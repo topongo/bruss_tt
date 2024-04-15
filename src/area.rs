@@ -1,6 +1,6 @@
 use serde::{Deserialize,Serialize};
 
-use crate::{TTEndpoint, TTType};
+use crate::{TTEndpoint, TTStop, TTType};
 
 #[derive(Deserialize, Debug)]
 pub struct TTArea {

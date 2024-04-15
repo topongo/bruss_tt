@@ -36,25 +36,29 @@ impl TTEndpoint for TTTrip {
 #[derive(Debug, Deserialize)]
 pub struct StopTime {
     #[serde(alias = "arrivalTime", deserialize_with = "deserialize_time")]
-    pub arrival: NaiveTime,
+    pub arrival: Option<NaiveTime>,
     #[serde(alias = "departureTime", deserialize_with = "deserialize_time")]
-    pub departure: NaiveTime,
+    pub departure: Option<NaiveTime>,
     #[serde(alias = "stopSequence")]
     pub sequence: u16,
     #[serde(alias = "stopId")]
     pub stop: u16,
 }
 
-pub fn deserialize_time<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error> where D: Deserializer<'de> {
+pub fn deserialize_time<'de, D>(deserializer: D) -> Result<Option<NaiveTime>, D::Error> where D: Deserializer<'de> {
     let s = String::deserialize(deserializer)?;
-    let sp: Vec<&str> = s.split(":").collect();
-    let (mut h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
+    if s.is_empty() {
+        Ok(None)
+    } else {
+        let sp: Vec<&str> = s.split(":").collect();
+        let (mut h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
 
-    h = h % 24;
+        h = h % 24;
 
-    match NaiveTime::from_hms_opt(h, m, s) {
-        Some(n) => Ok(n),
-        None => Err(Error::custom("could not parse time".to_owned()))
+        match NaiveTime::from_hms_opt(h, m, s) {
+            Some(n) => Ok(Some(n)),
+            None => Err(Error::custom("could not parse time".to_owned()))
+        }
     }
 }
 

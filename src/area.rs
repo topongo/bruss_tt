@@ -1,6 +1,7 @@
+use std::{error::Error as StdError, fmt::Display, str::FromStr};
 use serde::{Deserialize,Serialize};
 
-use crate::{TTEndpoint, TTStop, TTType};
+use crate::{TTEndpoint, TTType};
 
 #[derive(Deserialize, Debug)]
 pub struct TTArea {
@@ -28,6 +29,18 @@ pub enum AreaType {
 
 impl TTType for AreaType {}
 
+impl FromStr for AreaType {
+    type Err = AreaTypeParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "e" => Ok(Self::E),
+            "u" => Ok(Self::U),
+            _ => Err(AreaTypeParseError)
+        }
+    }
+}
+
 impl Into<u8> for AreaType {
     fn into(self) -> u8 {
         match self {
@@ -43,6 +56,17 @@ impl Into<&'static str> for AreaType {
             Self::E => "e",
             Self::U => "u"
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct AreaTypeParseError;
+
+impl StdError for AreaTypeParseError {}
+
+impl Display for AreaTypeParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 

@@ -41,20 +41,29 @@ impl FromStr for AreaType {
     }
 }
 
-impl Into<u8> for AreaType {
-    fn into(self) -> u8 {
+impl Display for AreaType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::E => b'e',
-            Self::U => b'u'
+            AreaType::E => write!(f, "e"),
+            AreaType::U => write!(f, "u"),
         }
     }
 }
 
-impl Into<&'static str> for AreaType {
-    fn into(self) -> &'static str {
-        match self {
-            Self::E => "e",
-            Self::U => "u"
+impl From<AreaType> for u8 {
+    fn from(value: AreaType) -> u8 {
+        match value {
+            AreaType::E => b'e',
+            AreaType::U => b'u'
+        }
+    }
+}
+
+impl From<AreaType> for &'static str {
+    fn from(value: AreaType) -> &'static str {
+        match value {
+            AreaType::E => "e",
+            AreaType::U => "u"
         }
     }
 }

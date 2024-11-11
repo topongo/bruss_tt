@@ -2,10 +2,12 @@ use reqwest::Method;
 use serde::Serialize;
 
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct RequestOptions<Q: Serialize> {
     pub method: Option<Method>,
     pub query: Option<Q>,
+    pub endpoint: &'static str,
+    pub id: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -18,8 +20,8 @@ impl RequestOptions<()> {
 }
 
 impl<Q: Serialize> RequestOptions<Q> {
-    pub fn new() -> Self {
-        Self { method: None, query: None }
+    pub fn new(endpoint: &'static str) -> Self {
+        Self { method: None, query: None, endpoint, id: None }
     }
 
     pub fn query(self, query: Q) -> Self {
@@ -30,6 +32,8 @@ impl<Q: Serialize> RequestOptions<Q> {
         Self { method: Some(method), ..self }
     }
 
-    
+    pub fn id(self, id: String) -> Self {
+        Self { id: Some(id), ..self }
+    }
 }
 

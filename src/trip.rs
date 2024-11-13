@@ -30,7 +30,7 @@ pub struct TTTrip {
 impl TTType for TTTrip {}
 
 impl TTEndpoint for TTTrip {
-    const ENDPOINT: &'static str = "/trips_new";
+    const ENDPOINT: &'static str = "/trips";
 }
 
 #[derive(Debug, Deserialize)]
@@ -53,7 +53,8 @@ pub fn deserialize_time<'de, D>(deserializer: D) -> Result<Option<NaiveTime>, D:
         let sp: Vec<&str> = s.split(":").collect();
         let (mut h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
 
-        h = h % 24;
+        // why tho?
+        h %= 24;
 
         match NaiveTime::from_hms_opt(h, m, s) {
             Some(n) => Ok(Some(n)),

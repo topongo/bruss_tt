@@ -8,33 +8,27 @@ use reqwest::{Client, RequestBuilder, Method};
 use serde::Serialize;
 use serde_json::error::Category;
 use log::{debug, info, trace};
-use tokio::sync::Mutex;
+
+#[cfg(feature = "stats")]
+use crate::stats::{Stats, StatsType};
 
 pub struct TTClient {
     base_url: String,
     secret: String,
     client: Client,
-    telemetry: Mutex<Telemetry>,
-}
-
-#[derive(Debug)]
-struct Telemetry {
-    pub requests: usize,
-    // pub bytes_sent: u64,
-    pub bytes_received: usize,
-    // pub errors: u64,
-    pub instant: std::time::Instant,
-}
-
-impl Default for Telemetry {
-    fn default() -> Self {
-        Self { requests: 0, bytes_received: 0, instant: std::time::Instant::now() }
-    }
+    #[cfg(feature = "stats")]
+    stats: StatsType,
 }
 
 impl TTClient {
     pub fn new(base_url: String, secret: String) -> Self {
-        Self { base_url, secret, client: Client::new(), telemetry: Mutex::new(Telemetry::default()) }
+        Self { 
+            base_url, 
+            secret, 
+            client: Client::new(),
+            #[cfg(feature = "stats")]
+            stats: StatsType::new(Stats::default()) 
+        }
     }
 
     pub(super) fn auth_req(&self, method: Method, url: &str, extra: Option<String>) -> RequestBuilder {
@@ -59,12 +53,18 @@ impl TTClient {
             .await?;
 
         debug!("response: {:?}", response);
-        self.telemetry.lock().await.requests += 1;
+        #[cfg(feature = "stats")]
+        {
+            self.stats.lock().await.requests += 1;
+        }
         let body = response
             .text()
             .await?;
 
-        self.telemetry.lock().await.bytes_received += body.as_bytes().len();
+        #[cfg(feature = "stats")]
+        {
+            self.stats.lock().await.bytes_received += body.as_bytes().len();
+        }
 
         trace!("received text from TT: {body}");
         serde_json::from_str::<Vec<O>>(&body).map_err(|e| {
@@ -93,12 +93,18 @@ impl TTClient {
             .await?;
 
         debug!("response: {:?}", response);
-        self.telemetry.lock().await.requests += 1;
+        #[cfg(feature = "stats")]
+        {
+            self.stats.lock().await.requests += 1;
+        }
         let body = response
             .text()
             .await?;
         
-        self.telemetry.lock().await.bytes_received += body.as_bytes().len();
+        #[cfg(feature = "stats")]
+        {
+            self.stats.lock().await.bytes_received += body.as_bytes().len();
+        }
 
         trace!("received text from TT: {body}");
         serde_json::from_str::<O>(&body).map_err(|e| {
@@ -116,8 +122,9 @@ impl TTClient {
         self.request_one_opt::<O, ()>(id, Option::<RequestOptions<()>>::None).await
     }
 
+    #[cfg(feature = "stats")]
     pub async fn print_telemetry(&self) -> String {
-        let t = self.telemetry.lock().await;
+        let t = self.stats.lock().await;
         format!(
             "num requests: {}\nbytes received: {}\nelapsed time: {:.2}s\nrequests/s: {:.2}\nbytes/s: {}", 
             t.requests,

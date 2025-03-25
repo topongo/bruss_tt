@@ -9,6 +9,8 @@ mod stop;
 mod trip;
 mod api_error;
 mod request;
+#[cfg(feature = "stats")]
+mod stats;
 
 pub use area::{TTArea,AreaType,AreaTypeParseError};
 pub use route::TTRoute;

@@ -1,8 +1,6 @@
-use std::time::Duration;
-
 use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::Error;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, TimeDelta};
 
 use crate::{AreaType,TTEndpoint,TTType};
 
@@ -38,27 +36,27 @@ impl TTEndpoint for TTTrip {
 #[derive(Debug, Deserialize)]
 pub struct StopTime {
     #[serde(alias = "arrivalTime", deserialize_with = "deserialize_time")]
-    pub arrival: Duration,
+    pub arrival: TimeDelta,
     #[serde(alias = "departureTime", deserialize_with = "deserialize_time")]
-    pub departure: Duration,
+    pub departure: TimeDelta,
     #[serde(alias = "stopSequence")]
     pub sequence: u16,
     #[serde(alias = "stopId")]
     pub stop: u16,
 }
 
-pub fn deserialize_time<'de, D>(deserializer: D) -> Result<Duration, D::Error> where D: Deserializer<'de> {
+pub fn deserialize_time<'de, D>(deserializer: D) -> Result<TimeDelta, D::Error> where D: Deserializer<'de> {
     let s = String::deserialize(deserializer)?;
     if s.is_empty() {
-        Ok(Duration::from_secs(0))
+        Ok(TimeDelta::zero())
     } else {
         let sp: Vec<&str> = s.split(":").collect();
-        let (mut h, m, s): (u32, u32, u32) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
+        let (h, m, s) = (sp[0].parse().map_err(Error::custom)?, sp[1].parse().map_err(Error::custom)?, sp[2].parse().map_err(Error::custom)?);
 
         // why tho? tt being weird...
-        h %= 24;
+        // h %= 24;
 
-        Ok(Duration::from_secs((h * 3600 + m * 60 + s).into()))
+        Ok(TimeDelta::hours(h) + TimeDelta::minutes(m) + TimeDelta::seconds(s))
     }
 }
 

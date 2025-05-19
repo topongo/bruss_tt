@@ -1,5 +1,3 @@
-#![feature(associated_type_defaults)]
-
 mod area;
 #[macro_use]
 mod client;

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Deserializer, Serialize};
 use serde::de::Error;
-use chrono::{NaiveDateTime, TimeDelta};
+use chrono::{DateTime, NaiveDateTime, TimeDelta, Utc};
 
 use crate::{AreaType,TTEndpoint,TTType};
 
@@ -25,6 +25,8 @@ pub struct TTTrip {
     pub ty: AreaType,
     #[serde(alias = "tripHeadsign")]
     pub headsign: String,
+    #[serde(alias = "lastEventRecivedAt")]
+    pub last_event: Option<DateTime<Utc>>,
 }
 
 impl TTType for TTTrip {}
